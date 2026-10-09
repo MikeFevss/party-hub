@@ -289,7 +289,6 @@ function PokerTableContent() {
     }
   }, [roomId, router, supabase]);
 
-  // Keep the selected raise at or above the current minimum.
   useEffect(() => {
     if (!game) return;
 
@@ -300,7 +299,6 @@ function PokerTableContent() {
     );
   }, [game?.current_bet, game?.min_raise]);
 
-  // Submit actions through the secured Supabase RPC.
   const runAction = useCallback(
     async (action: PokerAction, amount = 0) => {
       if (!roomId || actionLoading) return;
@@ -329,7 +327,6 @@ function PokerTableContent() {
             : "Your action could not be completed."
         );
 
-        // Refresh in case another player acted before this request arrived.
         await loadTable();
       } finally {
         setActionLoading(false);
@@ -443,30 +440,32 @@ function PokerTableContent() {
   const isShowdown = game.phase === "showdown";
 
   const canAct =
-    Boolean(myPlayer) &&
+    myPlayer !== undefined &&
     isMyTurn &&
     room.status === "playing" &&
     !isShowdown &&
-    !myPlayer?.folded &&
-    !myPlayer?.all_in;
+    !myPlayer.folded &&
+    !myPlayer.all_in;
 
-  const amountToCall = myPlayer
-    ? Math.max(0, game.current_bet - myPlayer.current_bet)
-    : 0;
+  const amountToCall =
+    myPlayer !== undefined
+      ? Math.max(0, game.current_bet - myPlayer.current_bet)
+      : 0;
 
   const checkCallAction: PokerAction =
     amountToCall > 0 ? "call" : "check";
 
   const callWouldRequireAllIn =
-    Boolean(myPlayer) &&
+    myPlayer !== undefined &&
     amountToCall > 0 &&
     amountToCall >= myPlayer.stack;
 
   const minimumRaiseTotal = game.current_bet + game.min_raise;
 
-  const maximumRaiseTotal = myPlayer
-    ? myPlayer.current_bet + myPlayer.stack - 1
-    : 0;
+  const maximumRaiseTotal =
+    myPlayer !== undefined
+      ? myPlayer.current_bet + myPlayer.stack - 1
+      : 0;
 
   const selectedRaise = Number(raiseAmount);
 
@@ -672,9 +671,7 @@ function PokerTableContent() {
               </button>
 
               <button
-                onClick={() =>
-                  void runAction("raise", selectedRaise)
-                }
+                onClick={() => void runAction("raise", selectedRaise)}
                 disabled={
                   !canAct ||
                   actionLoading ||
