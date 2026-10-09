@@ -45,7 +45,7 @@ const games: Game[] = [
     status: "Available",
     icon: "bingo",
     accent: "violet",
-    href: "https://bingo-mike-bca1.vercel.app",
+    href: "/games/bingo",
   },
 
   {
