@@ -34,6 +34,7 @@ type Game = {
 };
 
 const games: Game[] = [
+
   {
     id: "bingo",
     name: "Party Bingo",
@@ -41,11 +42,12 @@ const games: Game[] = [
       "Turn everyday moments into a competition. Create a game and play with your group.",
     category: "Party",
     players: "2–50+ players",
-    status: "Coming Soon",
+    status: "Available",
     icon: "bingo",
     accent: "violet",
-    href: "/games/bingo",
+    href: "https://bingo-mike-bca1.vercel.app",
   },
+
   {
     id: "poker",
     name: "Texas Hold'em",
