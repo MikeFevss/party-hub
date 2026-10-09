@@ -55,7 +55,7 @@ const games: Game[] = [
       "Build your stack, read the table and outplay your friends in private poker rooms.",
     category: "Cards",
     players: "2–9 players",
-    status: "Coming Soon",
+    status: "Available",
     icon: "poker",
     accent: "emerald",
     href: "/games/poker",
