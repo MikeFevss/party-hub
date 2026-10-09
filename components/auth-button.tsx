@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -32,22 +31,23 @@ export function AuthButton() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const supabase = getSupabase();
+    const client = getSupabase();
 
-    if (!supabase) {
+    if (!client) {
       setLoading(false);
+      setMessage(
+        "Google sign-in is not configured. Check your Supabase environment variables."
+      );
       return;
     }
 
     let mounted = true;
 
-    async function checkSession() {
+    async function checkSession(supabase: SupabaseClient) {
       try {
         const { data, error } = await supabase.auth.getSession();
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         if (error) {
           setMessage("Unable to check your sign-in status.");
@@ -65,11 +65,11 @@ export function AuthButton() {
       }
     }
 
-    void checkSession();
+    void checkSession(client);
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((_event, session) => {
       if (mounted) {
         setUser(session?.user ?? null);
       }
@@ -84,11 +84,11 @@ export function AuthButton() {
   async function handleSignIn() {
     setMessage("");
 
-    const supabase = getSupabase();
+    const client = getSupabase();
 
-    if (!supabase) {
+    if (!client) {
       setMessage(
-        "Google sign-in needs your Supabase environment variables. Configure them in .env.local first."
+        "Google sign-in requires NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in your environment variables."
       );
       return;
     }
@@ -96,7 +96,7 @@ export function AuthButton() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await client.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: window.location.origin,
@@ -108,23 +108,21 @@ export function AuthButton() {
         setLoading(false);
       }
     } catch {
-      setMessage("Unable to start Google sign-in. Please try again.");
+      setMessage("Unable to sign in. Please try again.");
       setLoading(false);
     }
   }
 
   async function handleSignOut() {
-    const supabase = getSupabase();
+    const client = getSupabase();
 
-    if (!supabase) {
-      return;
-    }
+    if (!client) return;
 
     setLoading(true);
     setMessage("");
 
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await client.auth.signOut();
 
       if (error) {
         setMessage(error.message);
@@ -146,8 +144,8 @@ export function AuthButton() {
           disabled={loading}
           title={user.email ?? "Signed in"}
         >
-          <LogOut size={16} />
-          {loading ? "Please wait..." : "Sign out"}
+          <LogOut size={18} aria-hidden="true" />
+          <span>{loading ? "Please wait..." : "Sign out"}</span>
         </button>
       ) : (
         <button
@@ -156,8 +154,8 @@ export function AuthButton() {
           onClick={handleSignIn}
           disabled={loading}
         >
-          <LogIn size={16} />
-          {loading ? "Loading..." : "Sign in with Google"}
+          <LogIn size={18} aria-hidden="true" />
+          <span>{loading ? "Loading..." : "Sign in with Google"}</span>
         </button>
       )}
 
